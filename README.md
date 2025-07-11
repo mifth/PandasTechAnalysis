@@ -3,6 +3,11 @@ Python tech analysis for markets using Pandas and Numpy.
 
 <img width="1512" height="916" alt="image" src="https://github.com/user-attachments/assets/824e51a1-9f96-439c-894a-ba83e14dec32" />
 
+Dependencies:
+- Pandas
+- Numpy
+
+How to use:
 - Get your candles/values data and convert it to Pandas.
 - Calculate tech analysis with PandasTechAnalysis.
 - Visualize with Plotly or Bokeh.
