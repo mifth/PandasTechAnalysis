@@ -31,7 +31,8 @@ def calculate_rsi_standard(ohlc_close: pd.Series, window=14):
 
 
 # Calculate Stochastic RSI. 
-# window_rsi can be None.
+# calculated_rsi_window can be None.
+# Note that only k_line and d_line outputs are used by graphs mostly.
 def calculate_stoch_rsi(ohlc_close: pd.Series, calculated_rsi_window: pd.Series = None, 
                         window=14, smooth_k=3, smooth_d=3) -> tuple:
     # Calculate standard RSI
@@ -53,7 +54,7 @@ def calculate_stoch_rsi(ohlc_close: pd.Series, calculated_rsi_window: pd.Series 
     return stoch_rsi, k_line, d_line
 
 
-# 1. Calculate MACD
+# Calculate MACD
 def calculate_macd(ohlc_close: pd.Series, fast_period=12, slow_period=26, signal_period=9) -> tuple:
     ema_fast = ohlc_close.ewm(span=fast_period, adjust=False).mean()
     ema_slow = ohlc_close.ewm(span=slow_period, adjust=False).mean()
@@ -63,7 +64,7 @@ def calculate_macd(ohlc_close: pd.Series, fast_period=12, slow_period=26, signal
     return macd_line, signal_line, histogram
 
 
-# 2. Calculate Bollinger Bands
+# Calculate Bollinger Bands
 def calculate_bollinger_bands(ohlc_close: pd.Series, window=20, num_std_dev=2) -> tuple:
     middle_band = ohlc_close.rolling(window=window).mean()
     std_dev = ohlc_close.rolling(window=window).std()
@@ -72,7 +73,7 @@ def calculate_bollinger_bands(ohlc_close: pd.Series, window=20, num_std_dev=2) -
     return middle_band, upper_band, lower_band
 
 
-# 3. Calculate ATR
+# Calculate ATR
 def calculate_atr(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=14):
     high_low = ohlc_high - ohlc_low
     high_close_prev = np.abs(ohlc_high - ohlc_close.shift(1))
