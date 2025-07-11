@@ -39,7 +39,7 @@ rsi_42 = pta.calculate_rsi_standard(candles_df['close'], window=42)
 volume_sma_5 = pta.calculate_sma(candles_df['volume'], 5)
 volume_sma_10 = pta.calculate_sma(candles_df['volume'], 10)
 
-# Stoch RSI
+# Stoch RSI. Note, only stoc_k and stoch_d values are used on graphs mostly.
 stoch_rsi, stoc_k, stoch_d = pta.calculate_stoch_rsi(candles_df['close'], rsi_14, window=14)
 
 # MACD
