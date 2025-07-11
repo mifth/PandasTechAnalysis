@@ -13,8 +13,10 @@ import pandas as pd
 import pandas_tech_analysis as pta
 
 candles_df: pd.DataFrame  # Your retrieved Candles/Values data from a market.
-# Say, your candles_df['close'] is candles close values.
 # Say, your candles_df['open'] is candles open values.
+# Say, your candles_df['high'] is candles high values.
+# Say, your candles_df['low'] is candles low values.
+# Say, your candles_df['close'] is candles close values.
 # Say, your candles_df['volume'] is volume values.
 
 # Candles Candles EMA
