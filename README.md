@@ -1,5 +1,5 @@
 # PandasTechAnalysis
-This is a small technical analysis Python library for markets using Pandas and Numpy. It's fast and simple.
+This is a small technical analysis Python library for markets using Pandas. It's fast and simple.
 
 <img width="1512" height="916" alt="image" src="https://github.com/user-attachments/assets/824e51a1-9f96-439c-894a-ba83e14dec32" />
 
