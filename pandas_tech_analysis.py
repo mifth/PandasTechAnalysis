@@ -90,24 +90,38 @@ def calculate_atr(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
 # Calculate ADX (Average Directional Index)
 def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=14,
                   map_to_one: bool = True):
-    # Calculate price movement
-    plus_dm = ohlc_high.diff()
-    minus_dm = ohlc_low.diff().abs()
-    plus_dm = np.where((plus_dm > minus_dm) & (plus_dm > 0), plus_dm, 0)
-    minus_dm = np.where((minus_dm > plus_dm) & (minus_dm > 0), minus_dm, 0)
+    # Calculate raw price movements
+    up_move = ohlc_high.diff()
+    down_move = ohlc_low.shift(1) - ohlc_low
 
-    # Calculate True Range
+    # Calculate +DM and -DM
+    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0)
+    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0)
+
+    plus_dm = pd.Series(plus_dm, index=ohlc_high.index)
+    minus_dm = pd.Series(minus_dm, index=ohlc_high.index)
+
+    # Calculate True Range (TR)
     tr1 = ohlc_high - ohlc_low
     tr2 = np.abs(ohlc_high - ohlc_close.shift(1))
     tr3 = np.abs(ohlc_low - ohlc_close.shift(1))
     tr = pd.DataFrame({'tr1': tr1, 'tr2': tr2, 'tr3': tr3}).max(axis=1)
 
-    # Smooth the values
-    atr = pd.Series(tr).ewm(alpha=1/window, adjust=False).mean()
-    plus_di = 100 * pd.Series(plus_dm).ewm(alpha=1/window, adjust=False).mean() / atr
-    minus_di = 100 * pd.Series(minus_dm).ewm(alpha=1/window, adjust=False).mean() / atr
+    # Smooth the values using Welles Wilder's approximation (EWMA with alpha=1/window)
+    atr = tr.ewm(alpha=1/window, adjust=False).mean()
+    smoothed_plus_dm = plus_dm.ewm(alpha=1/window, adjust=False).mean()
+    smoothed_minus_dm = minus_dm.ewm(alpha=1/window, adjust=False).mean()
 
-    # Calculate DX and ADX
-    dx = (np.abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)) * 100
-    adx = pd.Series(dx).ewm(alpha=1/window, adjust=False).mean()
+    # Calculate Directional Indicators (+DI and -DI)
+    plus_di = 100 * (smoothed_plus_dm / atr.replace(0, np.nan))
+    minus_di = 100 * (smoothed_minus_dm / atr.replace(0, np.nan))
+
+    # Calculate Directional Movement Index (DX)
+    dx_denominator = (plus_di + minus_di).replace(0, np.nan)
+    dx = (np.abs(plus_di - minus_di) / dx_denominator) * 100
+    dx = dx.fillna(0)
+
+    # Calculate Average Directional Index (ADX) - Smoothed DX
+    adx = dx.ewm(alpha=1/window, adjust=False).mean()
+
     return adx, plus_di, minus_di
