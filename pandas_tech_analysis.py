@@ -86,3 +86,28 @@ def calculate_atr(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
     atr = tr.ewm(com=(window - 1), adjust=False, min_periods=window).mean()
     return atr
 
+
+# Calculate ADX (Average Directional Index)
+def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=14,
+                  map_to_one: bool = True):
+    # Calculate price movement
+    plus_dm = ohlc_high.diff()
+    minus_dm = ohlc_low.diff().abs()
+    plus_dm = np.where((plus_dm > minus_dm) & (plus_dm > 0), plus_dm, 0)
+    minus_dm = np.where((minus_dm > plus_dm) & (minus_dm > 0), minus_dm, 0)
+
+    # Calculate True Range
+    tr1 = ohlc_high - ohlc_low
+    tr2 = np.abs(ohlc_high - ohlc_close.shift(1))
+    tr3 = np.abs(ohlc_low - ohlc_close.shift(1))
+    tr = pd.DataFrame({'tr1': tr1, 'tr2': tr2, 'tr3': tr3}).max(axis=1)
+
+    # Smooth the values
+    atr = pd.Series(tr).ewm(alpha=1/window, adjust=False).mean()
+    plus_di = 100 * pd.Series(plus_dm).ewm(alpha=1/window, adjust=False).mean() / atr
+    minus_di = 100 * pd.Series(minus_dm).ewm(alpha=1/window, adjust=False).mean() / atr
+
+    # Calculate DX and ADX
+    dx = (np.abs(plus_di - minus_di) / (plus_di + minus_di + 1e-10)) * 100
+    adx = pd.Series(dx).ewm(alpha=1/window, adjust=False).mean()
+    return adx, plus_di, minus_di
