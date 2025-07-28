@@ -89,7 +89,7 @@ def calculate_atr(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
 
 # Calculate ADX (Average Directional Index)
 def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=14,
-                  map_to_one: bool = True):
+                  map_to_one: bool = False):
     # Calculate raw price movements
     up_move = ohlc_high.diff()
     down_move = ohlc_low.shift(1) - ohlc_low
@@ -113,12 +113,17 @@ def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
     smoothed_minus_dm = minus_dm.ewm(alpha=1/window, adjust=False).mean()
 
     # Calculate Directional Indicators (+DI and -DI)
-    plus_di = 100 * (smoothed_plus_dm / atr.replace(0, np.nan))
-    minus_di = 100 * (smoothed_minus_dm / atr.replace(0, np.nan))
+    plus_di = (smoothed_plus_dm / atr.replace(0, np.nan))
+    minus_di = (smoothed_minus_dm / atr.replace(0, np.nan))
+    if not map_to_one:
+        plus_di *= 100
+        minus_di *= 100
 
     # Calculate Directional Movement Index (DX)
     dx_denominator = (plus_di + minus_di).replace(0, np.nan)
-    dx = (np.abs(plus_di - minus_di) / dx_denominator) * 100
+    dx = (np.abs(plus_di - minus_di) / dx_denominator)
+    if not map_to_one:
+        dx *= 100
     dx = dx.fillna(0)
 
     # Calculate Average Directional Index (ADX) - Smoothed DX
