@@ -3,6 +3,16 @@ This is a small technical analysis Python library for markets using Pandas. It's
 
 <img width="1512" height="916" alt="image" src="https://github.com/user-attachments/assets/824e51a1-9f96-439c-894a-ba83e14dec32" />
 
+Tech Analysis:
+- SMA
+- EMA
+- MACD
+- ATR
+- Bollinger Bands
+- RSI
+- Stoch RSI
+- ADX
+
 Dependencies:
 - Pandas
 - Numpy
