@@ -1,7 +1,8 @@
 # PandasTechAnalysis
 This is a small technical analysis Python library for markets using Pandas. It's fast and simple.
 
-<img width="1512" height="916" alt="image" src="https://github.com/user-attachments/assets/824e51a1-9f96-439c-894a-ba83e14dec32" />
+<img width="1488" height="875" alt="image" src="https://github.com/user-attachments/assets/cc3797b4-9936-437f-831b-73b19aebf4ac" />
+
 
 Tech Analysis:
 - SMA
@@ -60,4 +61,8 @@ bb_mid, bb_upper, bb_lower =  pta.calculate_bollinger_bands(candles_df['close'])
 
 # Calculate ATR
 atr = pta.calculate_atr(candles_df['high'], candles_df['low'], candles_df['close'])
+
+# Calculate ADX
+# map_to_one=True is mapped from 0 to 1. map_to_one=False is mapped from 0% to 100%.
+adx, adx_plus_di, adx_minus_di = pta.calculate_adx(candles_df['high'], candles_df['low'], candles_df['close'], window=14, map_to_one=True)
 ```
