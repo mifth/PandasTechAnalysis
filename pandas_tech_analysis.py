@@ -14,7 +14,7 @@ def calculate_ema(ohlc_close: pd.Series, fast_period=7):
     return ohlc_close.ewm(span=fast_period, adjust=False).mean()
 
 
-# (Your existing RSI functions - keeping standard version)
+# RSI function
 def calculate_rsi_standard(ohlc_close: pd.Series, window=14):
     delta = ohlc_close.diff()
     gain = delta.where(delta > 0, 0).rename("gain")
