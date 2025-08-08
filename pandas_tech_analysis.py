@@ -108,9 +108,9 @@ def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
     tr = pd.DataFrame({'tr1': tr1, 'tr2': tr2, 'tr3': tr3}).max(axis=1)
 
     # Smooth the values using Welles Wilder's approximation (EWMA with alpha=1/window)
-    atr = tr.ewm(alpha=1/window, adjust=False).mean()
-    smoothed_plus_dm = plus_dm.ewm(alpha=1/window, adjust=False).mean()
-    smoothed_minus_dm = minus_dm.ewm(alpha=1/window, adjust=False).mean()
+    atr = tr.ewm(alpha=1.0/window, adjust=False).mean()
+    smoothed_plus_dm = plus_dm.ewm(alpha=1.0/window, adjust=False).mean()
+    smoothed_minus_dm = minus_dm.ewm(alpha=1.0/window, adjust=False).mean()
 
     # Calculate Directional Indicators (+DI and -DI)
     plus_di = (smoothed_plus_dm / atr.replace(0, np.nan))
@@ -124,9 +124,130 @@ def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
     dx = (np.abs(plus_di - minus_di) / dx_denominator)
     if not map_to_one:
         dx *= 100
-    dx = dx.fillna(0)
+
+    # dx = dx.fillna(0)
 
     # Calculate Average Directional Index (ADX) - Smoothed DX
-    adx = dx.ewm(alpha=1/window, adjust=False).mean()
+    adx = dx.ewm(alpha=1.0/window, adjust=False).mean()
 
     return adx, plus_di, minus_di
+
+
+# Calculate CCI (Commodity Channel Index)
+def calculate_cci(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=20):
+    # Typical Price
+    tp = (ohlc_high + ohlc_low + ohlc_close) / 3.0
+
+    # Simple Moving Average of TP
+    sma_tp = tp.rolling(window=window, min_periods=window).mean()
+
+    # Mean Absolute Deviation (vectorized)
+    # Step 1: Difference from SMA
+    diff = (tp - sma_tp).abs()
+
+    # Step 2: Rolling mean of the absolute difference
+    mad = diff.rolling(window=window, min_periods=window).mean()
+
+    # CCI calculation (with division by zero protection)
+    cci = (tp - sma_tp) / (0.015 * mad.replace(0, np.nan))
+
+    return cci
+
+
+# Calculate Stochastic Oscillator
+def calculate_stoch(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series,
+    k_window=14, d_window=3):
+    """
+    Calculate Stochastic Oscillator (%K and %D) in a fully vectorized way.
+    
+    Parameters:
+        ohlc_high : High prices (pd.Series)
+        ohlc_low  : Low prices (pd.Series)
+        ohlc_close: Close prices (pd.Series)
+        k_window  : Lookback period for %K (default 14)
+        d_window  : Smoothing period for %D (default 3)
+    
+    Returns:
+        stoch_k : %K line
+        stoch_d : %D line (SMA of %K)
+    """
+    # Lowest low and highest high over the k_window
+    lowest_low = ohlc_low.rolling(window=k_window, min_periods=k_window).min()
+    highest_high = ohlc_high.rolling(window=k_window, min_periods=k_window).max()
+
+    # %K calculation (vectorized, safe for zero range)
+    range_ = (highest_high - lowest_low).replace(0, np.nan)
+    stoch_k = (ohlc_close - lowest_low) / range_ * 100
+
+    # %D calculation (SMA of %K)
+    stoch_d = stoch_k.rolling(window=d_window, min_periods=d_window).mean()
+
+    return stoch_k, stoch_d
+
+
+# Calculate Awesome Oscillator (AO)
+def calculate_ao(
+    ohlc_high: pd.Series,
+    ohlc_low: pd.Series,
+    fast_period=5,
+    slow_period=34
+):
+    """
+    Calculate Awesome Oscillator (AO).
+
+    AO = SMA(fast_period, Median Price) - SMA(slow_period, Median Price)
+    Median Price = (High + Low) / 2
+    """
+    median_price = (ohlc_high + ohlc_low) / 2.0
+
+    sma_fast = median_price.rolling(window=fast_period, min_periods=fast_period).mean()
+    sma_slow = median_price.rolling(window=slow_period, min_periods=slow_period).mean()
+
+    ao = sma_fast - sma_slow
+    return ao
+
+
+# Calculate Accelerator Oscillator (AC)
+def calculate_ac(
+    ohlc_high: pd.Series,
+    ohlc_low: pd.Series,
+    ao_fast=5,
+    ao_slow=34,
+    ac_sma=5
+):
+    """
+    Calculate Accelerator Oscillator (AC).
+
+    Steps:
+    1. Calculate AO = SMA(ao_fast, Median Price) - SMA(ao_slow, Median Price)
+    2. Calculate AC = AO - SMA(ac_sma, AO)
+    """
+    # Median Price
+    median_price = (ohlc_high + ohlc_low) / 2.0
+
+    # Awesome Oscillator
+    sma_fast = median_price.rolling(window=ao_fast, min_periods=ao_fast).mean()
+    sma_slow = median_price.rolling(window=ao_slow, min_periods=ao_slow).mean()
+    ao = sma_fast - sma_slow
+
+    # Accelerator Oscillator
+    ao_sma = ao.rolling(window=ac_sma, min_periods=ac_sma).mean()
+    ac = ao - ao_sma
+
+    return ac
+
+
+# Calculate Accelerator Oscillator (AC)
+def calculate_ac_with_ao(
+    ao: pd.Series,
+    ac_sma_period=5
+):
+    """
+    Calculate Accelerator Oscillator (AC).
+    ao is already calculated Awesome Oscillator result.
+    
+    AC = AO - SMA(ac_sma_period, AO)
+    """
+    ao_sma = ao.rolling(window=ac_sma_period, min_periods=ac_sma_period).mean()
+    ac = ao - ao_sma
+    return ac
