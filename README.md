@@ -13,6 +13,9 @@ Tech Analysis:
 - RSI
 - Stoch RSI
 - ADX
+- Stochastic Oscillator (Stoch)
+- Awesome Oscillator (AO)
+- Accelerator Oscillator (AC)
 
 Dependencies:
 - Pandas
