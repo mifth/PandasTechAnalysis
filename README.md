@@ -13,6 +13,7 @@ Tech Analysis:
 - RSI
 - Stoch RSI
 - ADX
+- Commodity Channel Index (CCI)
 - Stochastic Oscillator (Stoch)
 - Awesome Oscillator (AO)
 - Accelerator Oscillator (AC)
