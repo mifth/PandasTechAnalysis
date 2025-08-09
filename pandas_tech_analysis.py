@@ -66,8 +66,8 @@ def calculate_macd(ohlc_close: pd.Series, fast_period=12, slow_period=26, signal
 
 # Calculate Bollinger Bands
 def calculate_bollinger_bands(ohlc_close: pd.Series, window=20, num_std_dev=2) -> tuple:
-    middle_band = ohlc_close.rolling(window=window).mean()
-    std_dev = ohlc_close.rolling(window=window).std()
+    middle_band = ohlc_close.rolling(window=window, min_periods=window).mean()
+    std_dev = ohlc_close.rolling(window=window, min_periods=window).std()
     upper_band = middle_band + (std_dev * num_std_dev)
     lower_band = middle_band - (std_dev * num_std_dev)
     return middle_band, upper_band, lower_band
