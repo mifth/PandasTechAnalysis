@@ -23,7 +23,7 @@ Dependencies:
 - Numpy
 
 How to use:
-- Get your candles/values data and convert it to Pandas.
+- Get your candles/values data and convert it to Pandas data.
 - Calculate tech analysis with PandasTechAnalysis.
 - Visualize with Plotly or Bokeh.
 
