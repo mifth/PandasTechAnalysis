@@ -238,10 +238,7 @@ def calculate_ac(
 
 
 # Calculate Accelerator Oscillator (AC)
-def calculate_ac_with_ao(
-    ao: pd.Series,
-    ac_sma_period=5
-):
+def calculate_ac_with_ao(ao: pd.Series, ac_sma_period=5):
     """
     Calculate Accelerator Oscillator (AC).
     ao is already calculated Awesome Oscillator result.
