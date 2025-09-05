@@ -47,8 +47,8 @@ def min_rolling_pct(ohlc_low: pd.Series, ohlc_close: pd.Series, window: int) -> 
 def max_rolling_pct(ohlc_high: pd.Series, ohlc_close: pd.Series, window: int) -> pd.Series:
     return (ohlc_high.rolling(window=window).max() / ohlc_close) - 1
 
-# Close price returns over given periods
-def close_returns(ohlc_close: pd.Series, periods: int) -> pd.Series:
+# Close price returns over given periods. periods=1 is a previous candle.
+def close_returns(ohlc_close: pd.Series, periods: int = 1) -> pd.Series:
     return ohlc_close.pct_change(periods=periods)
 
 # Rolling range (high - low) relative to previous rolling average range
@@ -56,3 +56,4 @@ def rolling_range(ohlc_high: pd.Series, ohlc_low: pd.Series, window: int) -> pd.
     range_1 = (ohlc_high - ohlc_low)
     range_2 = range_1.shift(1).rolling(window=window).mean()
     return range_1 / range_2
+
