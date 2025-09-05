@@ -57,3 +57,28 @@ def rolling_range(ohlc_high: pd.Series, ohlc_low: pd.Series, window: int) -> pd.
     range_2 = range_1.shift(1).rolling(window=window).mean()
     return range_1 / range_2
 
+# Is doji candle
+def is_doji(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Series, ohlc_low: pd.Series) -> pd.Series:
+    # A doji is a candle with a very small body relative to its total range
+    body = (ohlc_open - ohlc_close).abs()
+    candle_range = ohlc_high - ohlc_low
+    # Use a small tolerance value, e.g., 5% of the range
+    return (body / candle_range < 0.05).astype(int)
+
+# Is hammer candle
+def is_hammer(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_low: pd.Series, ohlc_high: pd.Series) -> pd.Series:
+    body = (ohlc_close - ohlc_open).abs()
+    lower_wick = (ohlc_open - ohlc_low).where(ohlc_close > ohlc_open, (ohlc_close - ohlc_low))
+    upper_wick = (ohlc_high - ohlc_close).where(ohlc_close > ohlc_open, (ohlc_high - ohlc_open))
+
+    # A hammer has a small body, a long lower wick (at least twice the body), and a small upper wick.
+    return ((lower_wick > 2 * body) & (upper_wick < body) & (body > 0)).astype(int)
+
+# Is marubozu candle
+def is_marubozu(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Series, ohlc_low: pd.Series) -> pd.Series:
+    body = (ohlc_open - ohlc_close).abs()
+    candle_range = ohlc_high - ohlc_low
+
+    # A marubozu has a body that is a large percentage of its total range
+    return (body / candle_range > 0.8).astype(int)
+
