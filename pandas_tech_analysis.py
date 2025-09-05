@@ -248,3 +248,84 @@ def calculate_ac_with_ao(ao: pd.Series, ac_sma_period=5):
     ao_sma = ao.rolling(window=ac_sma_period, min_periods=ac_sma_period).mean()
     ac = ao - ao_sma
     return ac
+
+
+# Calculate Williams %R
+def calculate_williams_r(ohlc_high: pd.Series, ohlc_low: pd.Series, 
+                         ohlc_close: pd.Series, window=14):
+    highest_high = ohlc_high.rolling(window=window, min_periods=window).max()
+    lowest_low = ohlc_low.rolling(window=window, min_periods=window).min()
+
+    # Williams %R calculation (vectorized, safe for zero range)
+    range_ = (highest_high - lowest_low).replace(0, np.nan)
+    williams_r = (highest_high - ohlc_close) / range_ * -100
+
+    return williams_r
+
+# Calculate On-Balance Volume (OBV)
+def calculate_obv(ohlc_close: pd.Series, ohlc_volume: pd.Series):
+    direction = np.where(ohlc_close.diff() > 0, 1, np.where(ohlc_close.diff() < 0, -1, 0))
+    obv = (direction * ohlc_volume).cumsum().fillna(0) #fillna(0) is a safe approach.
+    return obv
+
+# Calculate Money Flow Index (MFI)
+def calculate_mfi(ohlc_high: pd.Series, ohlc_low: pd.Series, 
+                  ohlc_close: pd.Series, ohlc_volume: pd.Series, window=14):
+    tp = (ohlc_high + ohlc_low + ohlc_close) / 3.0
+    rmf = tp * ohlc_volume
+    
+    # Calculate positive and negative money flows
+    flow_diff = tp.diff()
+    positive_flow = rmf.where(flow_diff > 0, 0)
+    negative_flow = rmf.where(flow_diff < 0, 0)
+    
+    positive_mf = positive_flow.rolling(window=window, min_periods=window).sum()
+    negative_mf = negative_flow.rolling(window=window, min_periods=window).sum()
+    
+    mfr = positive_mf / negative_mf.replace(0, np.nan)
+    mfi = 100 - (100.0 / (1 + mfr))
+    
+    return mfi
+
+
+# Calculate Chaikin Money Flow (CMF)
+def calculate_cmf(ohlc_high: pd.Series, ohlc_low: pd.Series, 
+                  ohlc_close: pd.Series, ohlc_volume: pd.Series, window=20):
+    # Money Flow Multiplier
+    mf_multiplier = (((ohlc_close - ohlc_low) - (ohlc_high - ohlc_close)) 
+                     / (ohlc_high - ohlc_low).replace(0, np.nan))
+
+    # Money Flow Volume
+    mf_volume = mf_multiplier * ohlc_volume
+
+    # CMF calculation
+    cmf = (mf_volume.rolling(window=window, min_periods=window).sum() 
+           / ohlc_volume.rolling(window=window, min_periods=window).sum().replace(0, np.nan))
+
+    return cmf
+
+# Calculate Force Index (FI)
+def calculate_fi(ohlc_close: pd.Series, ohlc_volume: pd.Series, window=13):
+    # Raw Force Index
+    fi_raw = ohlc_close.diff() * ohlc_volume
+
+    # Smoothed Force Index using EMA
+    fi = fi_raw.ewm(span=window, adjust=False).mean()
+
+    return fi
+
+# Calculate Keltner Channels
+def calculate_keltner_channels(ohlc_high: pd.Series, ohlc_low: pd.Series, 
+                               ohlc_close: pd.Series, window=20, atr_window=10, multiplier=2):
+    # Middle Line (EMA of Close)
+    middle_line = ohlc_close.ewm(span=window, adjust=False).mean()
+
+    # Average True Range (ATR)
+    atr = calculate_atr(ohlc_high, ohlc_low, ohlc_close, window=atr_window)
+
+    # Upper and Lower Bands
+    upper_band = middle_line + (multiplier * atr)
+    lower_band = middle_line - (multiplier * atr)
+
+    return middle_line, upper_band, lower_band
+
