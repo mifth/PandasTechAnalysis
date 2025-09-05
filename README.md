@@ -17,6 +17,12 @@ Tech Analysis:
 - Stochastic Oscillator (Stoch)
 - Awesome Oscillator (AO)
 - Accelerator Oscillator (AC)
+- Williams %R
+- On-Balance Volume (OBV)
+- Money Flow Index (MFI)
+- Chaikin Money Flow (CMF)
+- Force Index (FI)
+- Keltner Channels
 
 Dependencies:
 - Pandas
