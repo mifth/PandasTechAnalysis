@@ -66,7 +66,7 @@ def is_doji(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Series, o
     return (body / candle_range < 0.05).astype(int)
 
 # Is hammer candle
-def is_hammer(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_low: pd.Series, ohlc_high: pd.Series) -> pd.Series:
+def is_hammer(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Series, ohlc_low: pd.Series) -> pd.Series:
     body = (ohlc_close - ohlc_open).abs()
     lower_wick = (ohlc_open - ohlc_low).where(ohlc_close > ohlc_open, (ohlc_close - ohlc_low))
     upper_wick = (ohlc_high - ohlc_close).where(ohlc_close > ohlc_open, (ohlc_high - ohlc_open))
