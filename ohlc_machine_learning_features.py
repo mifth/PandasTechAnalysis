@@ -1,5 +1,6 @@
 # Calculate OHLC candles features for machine learning
 
+import numpy as np
 import pandas as pd
 
 
@@ -25,14 +26,12 @@ def candle_taller_than_prev_oc(ohlc_open: pd.Series, ohlc_close: pd.Series) -> p
     taller_pct = ((ohlc_close - ohlc_open).abs() / prev) - 1
     return taller_pct
 
-# Center point of the candle (average of high and low)
-def candle_center_point(ohlc_high: pd.Series, ohlc_low: pd.Series) -> pd.Series:
-    return (ohlc_high + ohlc_low) / 2.0
-
-# Is the close above the center point of the candle
-def is_close_above_center(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series) -> pd.Series:
-    center = candle_center_point(ohlc_high, ohlc_low)
-    return (ohlc_close > center).astype(int)
+# Is the close diff from 0 to 1
+def open_or_close_diff(high: pd.Series, low: pd.Series, open_or_close: pd.Series) -> pd.Series:
+    size = high - low
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pct = (open_or_close - low) / size
+    return pct.fillna(0)  # or np.nan, depending on your pipeline
 
 # Is the open above the center point of the candle
 def is_open_above_center(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_open: pd.Series) -> pd.Series:
@@ -81,4 +80,3 @@ def is_marubozu(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Serie
 
     # A marubozu has a body that is a large percentage of its total range
     return (body / candle_range > 0.8).astype(int)
-
