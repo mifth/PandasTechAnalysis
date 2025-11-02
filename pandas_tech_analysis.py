@@ -72,6 +72,16 @@ def calculate_bollinger_bands(ohlc_close: pd.Series, window=20, num_std_dev=2) -
     lower_band = middle_band - (std_dev * num_std_dev)
     return middle_band, upper_band, lower_band
 
+# Calculate Bollinger Band Width
+def calculate_bollinger_band_width(upper_band: pd.Series, lower_band: pd.Series, middle_band: pd.Series) -> pd.Series:
+    band_width = (upper_band - lower_band) / middle_band
+    return band_width
+
+# Calculate Bollinger Band %B
+def calculate_bollinger_percent_b(ohlc_close: pd.Series, upper_band: pd.Series, lower_band: pd.Series) -> pd.Series:
+    percent_b = (ohlc_close - lower_band) / (upper_band - lower_band)
+    return percent_b
+
 
 # Calculate ATR
 def calculate_atr(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=14):
