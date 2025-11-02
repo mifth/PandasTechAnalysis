@@ -10,6 +10,8 @@ Tech Analysis:
 - MACD
 - ATR
 - Bollinger Bands
+- Bollinger %B
+- Bollinger Band Width
 - RSI
 - Stoch RSI
 - ADX
