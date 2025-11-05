@@ -159,7 +159,7 @@ def calculate_cci(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
     mad = diff.rolling(window=window, min_periods=window).mean()
 
     # CCI calculation (with division by zero protection)
-    cci = (tp - sma_tp) / (0.015 * mad.replace(0, np.nan))
+    cci = (tp - tp.rolling(window).mean()) / (0.015 * tp.rolling(window).apply(lambda x: np.mean(np.abs(x - np.mean(x)))))
 
     return cci
 
