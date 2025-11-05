@@ -145,21 +145,10 @@ def calculate_adx(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Seri
 
 # Calculate CCI (Commodity Channel Index)
 def calculate_cci(ohlc_high: pd.Series, ohlc_low: pd.Series, ohlc_close: pd.Series, window=20):
-    # Typical Price
     tp = (ohlc_high + ohlc_low + ohlc_close) / 3.0
-
-    # Simple Moving Average of TP
-    sma_tp = tp.rolling(window=window, min_periods=window).mean()
-
-    # Mean Absolute Deviation (vectorized)
-    # Step 1: Difference from SMA
-    diff = (tp - sma_tp).abs()
-
-    # Step 2: Rolling mean of the absolute difference
-    mad = diff.rolling(window=window, min_periods=window).mean()
-
-    # CCI calculation (with division by zero protection)
-    cci = (tp - tp.rolling(window).mean()) / (0.015 * tp.rolling(window).apply(lambda x: np.mean(np.abs(x - np.mean(x)))))
+    tp_mean = tp.rolling(window).mean()
+    tp_mad = tp.rolling(window).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
+    cci = (tp - tp_mean) / (0.015 * tp_mad)
 
     return cci
 
