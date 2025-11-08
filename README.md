@@ -25,6 +25,7 @@ Tech Analysis:
 - Chaikin Money Flow (CMF)
 - Force Index (FI)
 - Keltner Channels
+- Trend Strength Indicator (TSI)
 
 Dependencies:
 - Pandas
