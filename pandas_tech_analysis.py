@@ -315,7 +315,7 @@ def calculate_fi(ohlc_close: pd.Series, ohlc_volume: pd.Series, window=13):
 
 # Calculate Keltner Channels
 def calculate_keltner_channels(ohlc_high: pd.Series, ohlc_low: pd.Series, 
-                               ohlc_close: pd.Series, window=20, atr_window=10, multiplier=2):
+                               ohlc_close: pd.Series, window=20, atr_window=10, multiplier=1):
     # Middle Line (EMA of Close)
     middle_line = ohlc_close.ewm(span=window, adjust=False).mean()
 
