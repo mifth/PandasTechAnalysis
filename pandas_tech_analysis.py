@@ -328,3 +328,20 @@ def calculate_keltner_channels(ohlc_high: pd.Series, ohlc_low: pd.Series,
 
     return middle_line, upper_band, lower_band
 
+# Calculate Trend Strength Indicator (TSI)
+def calculate_tsi(ohlc_close: pd.Series, window=14):
+    """
+    TSI: window is the main parameter (default 14).
+    short_window = window // 2, long_window = window
+    Returns TSI in the range -1 to 1 (normalized).
+    """
+    short_window = window // 2
+    long_window = window
+
+    price_change = ohlc_close.diff()
+    double_smoothed_pc = price_change.ewm(span=short_window, adjust=False).mean().ewm(span=long_window, adjust=False).mean()
+    abs_price_change = price_change.abs()
+    double_smoothed_apc = abs_price_change.ewm(span=short_window, adjust=False).mean().ewm(span=long_window, adjust=False).mean()
+    tsi = (double_smoothed_pc / double_smoothed_apc.replace(0, np.nan))
+    return tsi
+
