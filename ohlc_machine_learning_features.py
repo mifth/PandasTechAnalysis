@@ -63,7 +63,8 @@ def is_doji(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Series, o
     body = (ohlc_open - ohlc_close).abs()
     candle_range = ohlc_high - ohlc_low
     # Use a small tolerance value, e.g., 5% of the range
-    return (body / candle_range < 0.05).astype(int)
+    ratio = (body / candle_range).replace([np.inf, -np.inf, np.nan], 1)
+    return (ratio < 0.05).astype(int)
 
 # Is hammer candle
 def is_hammer(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Series, ohlc_low: pd.Series) -> pd.Series:
@@ -80,4 +81,5 @@ def is_marubozu(ohlc_open: pd.Series, ohlc_close: pd.Series, ohlc_high: pd.Serie
     candle_range = ohlc_high - ohlc_low
 
     # A marubozu has a body that is a large percentage of its total range
-    return (body / candle_range > 0.8).astype(int)
+    ratio = (body / candle_range).replace([np.inf, -np.inf, np.nan], 0)
+    return (ratio > 0.8).astype(int)
